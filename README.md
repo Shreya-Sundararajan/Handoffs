@@ -4,7 +4,7 @@ Turn vague handoff notes into a clear, one-screen card.
 
 When someone passes work to a teammate, the note is often something like "mostly done, some stuff is blocked, you'll see." Handoffs gives the next person what they actually need: what's done, what's stuck, what not to touch, and what to do first.
 
-**Live demo:** https://YOURNAME.github.io/handoffs/
+**Live demo:** https://shreya-sundararajan.github.io/Handoffs/
 
 ## What it does
 
