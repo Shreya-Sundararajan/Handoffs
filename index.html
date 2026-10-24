@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Handoffs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ece6ff; --ink:#1c1038; --cobalt:#3b2bff; --pink:#ff3e9a; --sun:#ffd23f; --mint:#2ee6a6; --tang:#ff7a2f; --white:#fff;
+  --line:3px solid var(--ink); --hard:6px 6px 0 var(--ink);
+  --display:'Bricolage Grotesque','Arial Black',Impact,sans-serif; --body:'Figtree',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.5;font-size:16px;
+  background-image:radial-gradient(var(--ink) 1px,transparent 1.5px);background-size:26px 26px;background-position:0 0}
+body::before{content:"";position:fixed;inset:0;background:var(--paper);opacity:.93;z-index:-1}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:4px solid var(--cobalt);outline-offset:3px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:var(--display);line-height:1.02;letter-spacing:-.02em}
+nav{display:flex;justify-content:space-between;align-items:center;padding:18px 0}
+.logo{font-family:var(--display);font-weight:800;font-size:22px;display:flex;gap:8px;align-items:center}
+.btn{border:var(--line);background:var(--sun);padding:12px 20px;font-weight:700;border-radius:14px;cursor:pointer;box-shadow:4px 4px 0 var(--ink);transition:transform .12s,box-shadow .12s;text-decoration:none;display:inline-block;color:var(--ink)}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.pink{background:var(--pink)}.btn.cobalt{background:var(--cobalt);color:#fff}.btn.mint{background:var(--mint)}.btn.white{background:#fff}
+.btn.sm{padding:8px 14px;font-size:14px;border-radius:10px}
+/* hero */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:30px;align-items:center;padding:30px 0 50px}
+.hero h1{font-size:clamp(46px,8vw,100px);font-weight:800}
+.hero h1 span{display:inline-block;background:var(--pink);color:#fff;padding:0 .15em;border:var(--line);border-radius:18px;transform:rotate(-2deg);box-shadow:var(--hard)}
+.hero p{font-size:20px;max-width:520px;margin:24px 0 28px}
+.ghostbox{position:relative;height:330px;display:grid;place-items:center}
+.ghost{width:210px;animation:float 3.6s ease-in-out infinite;filter:drop-shadow(8px 8px 0 var(--ink))}
+@keyframes float{50%{transform:translateY(-16px) rotate(2deg)}}
+.bubble{position:absolute;border:var(--line);border-radius:16px;padding:8px 12px;font-weight:700;font-size:14px;box-shadow:4px 4px 0 var(--ink)}
+.bubble.a{top:10px;left:0;background:var(--sun);transform:rotate(-6deg)}
+.bubble.b{bottom:30px;right:0;background:var(--mint);transform:rotate(5deg)}
+.bubble.c{top:70px;right:6px;background:#fff;transform:rotate(4deg)}
+/* form */
+section{padding:30px 0}
+.sec-title{font-size:clamp(30px,5vw,52px);margin-bottom:8px}
+.sub{max-width:620px;margin-bottom:24px}
+.panel{background:#fff;border:var(--line);border-radius:22px;box-shadow:var(--hard);padding:22px}
+.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+label.f{display:block;font-weight:700;font-size:14px}
+input[type=text],textarea{width:100%;border:var(--line);border-radius:12px;padding:10px 12px;background:#fff;margin-top:6px;resize:vertical}
+input[type=text]:focus,textarea:focus{box-shadow:4px 4px 0 var(--cobalt);outline:none}
+.grid4{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.blk{border:var(--line);border-radius:18px;padding:14px}
+.blk h3{font-size:24px;display:flex;align-items:center;gap:8px}
+.blk small{display:block;margin:2px 0 4px;font-weight:600;opacity:.8}
+.blk textarea{min-height:104px}
+.c-done{background:var(--mint)}.c-stuck{background:var(--tang)}.c-dont{background:var(--pink)}.c-first{background:var(--sun)}
+.risk{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 4px}
+.chip{border:var(--line);border-radius:999px;padding:7px 16px;font-weight:700;background:#fff;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--ink);color:#fff}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;align-items:center}
+.score{margin-left:auto;display:flex;align-items:center;gap:10px;font-weight:700}
+.meter{width:150px;height:18px;border:var(--line);border-radius:99px;background:#fff;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--pink);transition:width .4s,background .4s}
+.tips{margin-top:12px;font-size:14px;font-weight:600;min-height:20px}
+.tips mark{background:var(--sun);padding:0 4px;border-radius:4px}
+/* output */
+.versus{display:grid;grid-template-columns:1fr 1.2fr;gap:26px;align-items:start}
+.tag{display:inline-block;border:var(--line);border-radius:10px;padding:3px 12px;font-family:var(--display);font-weight:800;margin-bottom:12px;box-shadow:3px 3px 0 var(--ink)}
+.slack{background:#fff;border:var(--line);border-radius:18px;box-shadow:var(--hard);overflow:hidden;transform:rotate(-1.2deg)}
+.slack .bar{background:#4a154b;color:#fff;padding:9px 14px;font-weight:700;font-size:14px}
+.slack .msg{display:flex;gap:10px;padding:14px}
+.av{width:38px;height:38px;border-radius:9px;background:var(--tang);border:2px solid var(--ink);display:grid;place-items:center;font-weight:800;flex:none}
+.slack .txt{font-size:15px;white-space:pre-wrap;word-break:break-word}
+.slack .who{font-weight:800}.slack .who em{font-weight:400;opacity:.6;font-style:normal;font-size:12px;margin-left:6px}
+.slack textarea{min-height:90px;margin:0 14px 14px;width:calc(100% - 28px);font-size:13px}
+.q{margin-top:10px;font-weight:700;font-size:14px;padding:0 4px}
+.card{background:#fff;border:var(--line);border-radius:22px;box-shadow:var(--hard);overflow:hidden}
+.card header{background:var(--cobalt);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+.card header h3{font-size:28px}
+.card header p{font-size:14px;opacity:.9}
+.rb{border:3px solid #fff;border-radius:999px;padding:4px 14px;font-weight:800;background:var(--mint);color:var(--ink)}
+.rb.watch{background:var(--sun)}.rb.fire{background:var(--pink);color:#fff}
+.cg{display:grid;grid-template-columns:1fr 1fr}
+.cs{padding:14px 18px;border-top:var(--line)}
+.cs:nth-child(even){border-left:var(--line)}
+.cs h4{font-family:var(--display);font-size:19px;display:inline-block;padding:2px 10px;border:var(--line);border-radius:8px;margin-bottom:8px}
+.cs.d{background:#d9fff0}.cs.s{background:#ffe6d6}.cs.n{background:#ffe0ee}.cs.f{background:#fff6cf}
+.cs.d h4{background:var(--mint)}.cs.s h4{background:var(--tang)}.cs.n h4{background:var(--pink);color:#fff}.cs.f h4{background:var(--sun)}
+.cs ul{padding-left:18px;font-size:15px}.cs li{margin:3px 0}
+.cs .none{opacity:.55;font-style:italic;font-size:14px}
+.cs.f{grid-column:1/-1;border-left:0!important;font-size:17px;font-weight:700}
+.cf{display:flex;flex-wrap:wrap;gap:10px;padding:14px 18px;border-top:var(--line);background:var(--paper)}
+/* history */
+.hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.hi{border:var(--line);border-radius:16px;background:#fff;padding:14px;box-shadow:4px 4px 0 var(--ink)}
+.hi b{font-family:var(--display);font-size:18px;display:block}
+.hi p{font-size:13px;margin:4px 0 10px;opacity:.75}
+.empty{font-weight:600;padding:16px;border:3px dashed var(--ink);border-radius:16px}
+footer{padding:40px 0 60px;font-weight:600}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,120px);background:var(--ink);color:#fff;padding:12px 22px;border-radius:14px;font-weight:700;transition:transform .25s;z-index:9}
+.toast.on{transform:translate(-50%,0)}
+@media(max-width:860px){.hero,.versus{grid-template-columns:1fr}.ghostbox{height:260px}.meta,.grid4,.cg{grid-template-columns:1fr}.cs:nth-child(even){border-left:0}.score{margin-left:0;width:100%}}
+@media print{body *{visibility:hidden}#card,#card *{visibility:visible}#card{position:absolute;inset:0;box-shadow:none}.cf{display:none}}
+@media(prefers-reduced-motion:reduce){.ghost{animation:none}*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><div class="logo"><svg width="30" height="30" viewBox="0 0 100 100"><path d="M15 90V45a35 35 0 0 1 70 0v45l-12-9-11 9-12-9-11 9-12-9z" fill="#fff" stroke="#1c1038" stroke-width="7" stroke-linejoin="round"/><circle cx="38" cy="45" r="6" fill="#1c1038"/><circle cx="62" cy="45" r="6" fill="#1c1038"/></svg>Handoffs</div>
+<a class="btn sm" href="#build">Write a handoff</a></nav>
+
+<div class="hero">
+  <div>
+    <h1>Don’t haunt your <span>teammates.</span></h1>
+    <p>Turn the “ok so basically it’s mostly done” message into a one-screen card that says what’s finished, what’s stuck, what to leave alone, and what to do first.</p>
+    <a class="btn pink" href="#build">Build my card</a>
+    <button class="btn white" id="demoBtn" style="margin-left:8px">Fill with an example</button>
+  </div>
+  <div class="ghostbox" aria-hidden="true">
+    <span class="bubble a">“should be fine”</span><span class="bubble b">“you’ll see”</span><span class="bubble c">“some stuff is blocked”</span>
+    <svg class="ghost" viewBox="0 0 100 100"><path d="M12 92V45a38 38 0 0 1 76 0v47l-12.6-9.5L63 92 50 82.5 37 92l-12.4-9.5z" fill="#fff" stroke="#1c1038" stroke-width="4" stroke-linejoin="round"/><circle cx="37" cy="46" r="6" fill="#1c1038"/><circle cx="63" cy="46" r="6" fill="#1c1038"/><path d="M40 62q10 8 20 0" stroke="#ff3e9a" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+  </div>
+</div>
+
+<section id="build">
+  <h2 class="sec-title">Tell the next person everything</h2>
+  <p class="sub">Write one item per line. Specific beats short: name the ticket, file, server, or customer.</p>
+  <div class="panel">
+    <div class="meta">
+      <label class="f">Your name<input type="text" id="from" placeholder="Maya" autocomplete="off"></label>
+      <label class="f">Handing off to<input type="text" id="to" placeholder="Dev (night shift)" autocomplete="off"></label>
+      <label class="f">Project or shift<input type="text" id="proj" placeholder="Checkout v2 release" autocomplete="off"></label>
+    </div>
+    <div class="grid4">
+      <div class="blk c-done"><h3>Done</h3><small>Finished and verified. Say how you know.</small><textarea id="done" placeholder="Migrated 3 of 4 payment tables (verified row counts)"></textarea></div>
+      <div class="blk c-stuck"><h3>Stuck</h3><small>What’s blocked, and on whom or what.</small><textarea id="stuck" placeholder="Waiting on Stripe webhook key from Priya (asked Tue 4pm)"></textarea></div>
+      <div class="blk c-dont"><h3>Don’t touch</h3><small>Fragile things and why.</small><textarea id="dont" placeholder="prod config flag checkout_v2: half-rolled out, changing it breaks carts"></textarea></div>
+      <div class="blk c-first"><h3>First thing to do</h3><small>One action. The very first one.</small><textarea id="first" placeholder="Check #payments-alerts for failures since 6pm, then re-run migration 004"></textarea></div>
+    </div>
+    <div class="risk" role="group" aria-label="Risk level"><b>Risk if nothing happens:</b>
+      <button class="chip" data-r="chill" aria-pressed="true">Chill</button>
+      <button class="chip" data-r="watch" aria-pressed="false">Keep an eye</button>
+      <button class="chip" data-r="fire" aria-pressed="false">On fire</button>
+    </div>
+    <div class="actions">
+      <button class="btn cobalt" id="gen">Make the card</button>
+      <button class="btn" id="save">Save to history</button>
+      <button class="btn white" id="clear">Start over</button>
+      <div class="score"><span id="scoreLbl">Ghost-proof score: 0</span><div class="meter"><i id="scoreBar"></i></div></div>
+    </div>
+    <div class="tips" id="tips" aria-live="polite"></div>
+  </div>
+</section>
+
+<section id="out">
+  <h2 class="sec-title">Before and after</h2>
+  <p class="sub">The left side is the message most handoffs turn into. Paste your own to compare, or leave it and we’ll imitate you.</p>
+  <div class="versus">
+    <div>
+      <span class="tag" style="background:var(--tang)">Before: the Slack message</span>
+      <div class="slack"><div class="bar"># shift-handoff</div>
+        <div class="msg"><div class="av" id="av">M</div><div><div class="who" id="slWho">Maya<em>5:58 PM</em></div><div class="txt" id="slTxt"></div></div></div>
+        <textarea id="mine" placeholder="Paste your real Slack handoff here to compare"></textarea>
+      </div>
+      <p class="q">Count the questions the next person has to ask. Now look at the card.</p>
+    </div>
+    <div>
+      <span class="tag" style="background:var(--mint)">After: the Handoffs card</span>
+      <article class="card" id="card" aria-live="polite"></article>
+    </div>
+  </div>
+</section>
+
+<section id="history">
+  <h2 class="sec-title">Past handoffs</h2>
+  <p class="sub">Saved in this browser only. Share links carry the whole card, so nothing needs a server.</p>
+  <div class="hist" id="hist"></div>
+</section>
+<footer>Handoffs. Write it down so nobody has to guess.</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const F=['from','to','proj','done','stuck','dont','first'];
+let risk='chill';
+const esc=s=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const lines=t=>(t||'').split('\n').map(x=>x.replace(/^\s*[-•*\d.)]+\s+/,'').trim()).filter(Boolean);
+const RISK={chill:'Chill',watch:'Keep an eye',fire:'On fire'};
+
+/* ---- tiny "backend": storage layer with history + share links (no server needed) ---- */
+const Store={
+  key:'handoffGhost.v1',
+  all(){try{return JSON.parse(localStorage.getItem(this.key)||'[]')}catch(e){return[]}},
+  put(list){try{localStorage.setItem(this.key,JSON.stringify(list))}catch(e){}},
+  add(h){const l=this.all();l.unshift({...h,id:Date.now(),at:new Date().toISOString()});this.put(l.slice(0,30))},
+  del(id){this.put(this.all().filter(x=>x.id!==id))},
+  link(h){return location.href.split('#')[0]+'#h='+btoa(unescape(encodeURIComponent(JSON.stringify(h))))},
+  fromHash(){try{const m=location.hash.match(/#h=(.+)/);return m?JSON.parse(decodeURIComponent(escape(atob(m[1])))):null}catch(e){return null}}
+};
+
+const read=()=>{const o={risk};F.forEach(f=>o[f]=$('#'+f).value.trim());return o};
+const write=h=>{F.forEach(f=>$('#'+f).value=h[f]||'');risk=h.risk||'chill';$$('.chip').forEach(c=>c.setAttribute('aria-pressed',c.dataset.r===risk))};
+
+/* ---- vague-language linter + score ---- */
+const VAGUE=['stuff','things','etc','some','asap','soon','whatever','basically','kinda','maybe','idk','a bit','should be fine','mostly','somewhere','a few'];
+function analyse(h){
+  let s=0;const hits=new Set(),missing=[];
+  if(h.from&&h.to)s+=15;else missing.push('who it’s from and to');
+  [['done','Done'],['stuck','Stuck'],['dont','Don’t touch'],['first','First thing']].forEach(([k,n])=>{
+    const t=h[k];if(!t){missing.push(n);return}
+    s+=15;if(/\d|#|\/|@|"|`/.test(t)||t.length>45)s+=5;
+    VAGUE.forEach(w=>{if(new RegExp('\\b'+w+'\\b','i').test(t)){hits.add(w);s-=4}});
+  });
+  if(h.first&&lines(h.first).length>1)s-=5;
+  return{score:Math.max(0,Math.min(100,s+5)),hits:[...hits],missing};
+}
+
+/* ---- messy slack generator ---- */
+function messy(h){
+  const c=k=>(lines(h[k])[0]||'').replace(/\.$/,'').toLowerCase();
+  const to=h.to?'@'+h.to.split(/[ (]/)[0]:'hey';
+  let m=`${to} ok so basically ${c('done')||'a lot got done'} ish.. `;
+  m+=c('stuck')?`theres a thing w ${c('stuck').split(' ').slice(0,4).join(' ')} but should be fine `:'some stuff is blocked maybe ';
+  m+=c('dont')?`dont mess w the config lol `:'';
+  m+=`you’ll see when u get in, ${c('first').split(' ').slice(0,3).join(' ')||'just check it'}? asap thx`;
+  return m;
+}
+
+/* ---- card ---- */
+const sec=(cls,title,arr,empty)=>`<div class="cs ${cls}"><h4>${title}</h4>${arr.length?`<ul>${arr.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:`<p class="none">${empty}</p>`}</div>`;
+function cardHTML(h){
+  const when=new Date().toLocaleString([], {weekday:'short',hour:'numeric',minute:'2-digit'});
+  return `<header><div><h3>${esc(h.proj||'Untitled handoff')}</h3><p>${esc(h.from||'Someone')} to ${esc(h.to||'whoever’s next')}, ${when}</p></div><span class="rb ${h.risk}">${RISK[h.risk]}</span></header>
+  <div class="cg">${sec('d','Done',lines(h.done),'Nothing listed. Say what’s finished.')}${sec('s','Stuck',lines(h.stuck),'Nothing blocked. Say so explicitly.')}${sec('n','Don’t touch',lines(h.dont),'No landmines listed.')}
+  <div class="cs f"><h4>First thing to do</h4><p>${esc(lines(h.first)[0]||'Not set. Add one clear first action.')}</p></div></div>
+  <div class="cf"><button class="btn sm mint" data-c="slack">Copy for Slack</button><button class="btn sm" data-c="text">Copy as text</button><button class="btn sm pink" data-c="link">Copy share link</button><button class="btn sm white" data-c="print">Print or PDF</button></div>`;
+}
+function asText(h,slack){
+  const b=slack?'*':'',L=a=>a.length?a.map(x=>'• '+x).join('\n'):'• none';
+  return `${b}Handoff: ${h.proj||'Untitled'}${b}\n${h.from||'?'} → ${h.to||'next person'} | Risk: ${RISK[h.risk]}\n\n${b}Done${b}\n${L(lines(h.done))}\n\n${b}Stuck${b}\n${L(lines(h.stuck))}\n\n${b}Don’t touch${b}\n${L(lines(h.dont))}\n\n${b}First thing to do${b}\n${lines(h.first)[0]||'not set'}`;
+}
+
+let timer;
+function render(){
+  const h=read(),a=analyse(h);
+  $('#card').innerHTML=cardHTML(h);
+  $('#slWho').firstChild.textContent=h.from||'Maya';
+  $('#av').textContent=(h.from||'M')[0].toUpperCase();
+  $('#slTxt').textContent=$('#mine').value.trim()||(F.slice(3).some(f=>h[f])?messy(h):'ok so basically its mostly done?? some stuff is blocked, dont touch the thing, you’ll figure it out. thx');
+  $('#scoreLbl').textContent='Ghost-proof score: '+a.score;
+  const bar=$('#scoreBar');bar.style.width=a.score+'%';bar.style.background=a.score>74?'var(--mint)':a.score>44?'var(--sun)':'var(--pink)';
+  $('#tips').innerHTML=a.hits.length?'Vague words spotted: '+a.hits.map(w=>`<mark>${esc(w)}</mark>`).join(' ')+'. Swap them for names, numbers, or times.':a.missing.length&&F.slice(3).some(f=>h[f])?'Still missing: '+a.missing.join(', ')+'.':a.score>74?'Ghost-proof. The next person can start without asking you anything.':'';
+}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
+async function copy(t,msg){try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;document.body.append(a);a.select();document.execCommand('copy');a.remove()}toast(msg)}
+
+function drawHistory(){
+  const l=Store.all();
+  $('#hist').innerHTML=l.length?l.map(h=>`<div class="hi"><b>${esc(h.proj||'Untitled')}</b><p>${esc(h.from||'?')} to ${esc(h.to||'?')}, ${new Date(h.at).toLocaleDateString()}</p><button class="btn sm cobalt" data-open="${h.id}">Open</button> <button class="btn sm white" data-del="${h.id}">Delete</button></div>`).join(''):'<div class="empty">No saved handoffs yet. Make a card and press Save to history.</div>';
+}
+
+/* ---- events ---- */
+$$('input,textarea').forEach(e=>e.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(render,120)}));
+$$('.chip').forEach(c=>c.onclick=()=>{risk=c.dataset.r;$$('.chip').forEach(x=>x.setAttribute('aria-pressed',x===c));render()});
+$('#gen').onclick=()=>{render();$('#out').scrollIntoView();toast('Card ready')};
+$('#save').onclick=()=>{const h=read();if(!h.proj&&!h.done){toast('Add a project name or what’s done first');return}Store.add(h);drawHistory();toast('Saved to history')};
+$('#clear').onclick=()=>{write({});$('#mine').value='';history.replaceState(null,'',location.pathname);render()};
+$('#demoBtn').onclick=()=>{write({from:'Maya',to:'Dev (night shift)',proj:'Checkout v2 release',risk:'watch',
+  done:'Migrated 3 of 4 payment tables (row counts verified)\nUpdated the refund endpoint, PR #482 merged',
+  stuck:'Waiting on the Stripe webhook key from Priya (asked Tue 4pm)\nStaging DB is full, ticket OPS-91 open',
+  dont:'Flag checkout_v2 in prod: half rolled out, changing it breaks carts\nDon’t re-run migration 003, it duplicates rows',
+  first:'Check #payments-alerts for failures since 6pm, then re-run migration 004'});$('#mine').value='';render();$('#build').scrollIntoView()};
+document.addEventListener('click',e=>{
+  const c=e.target.closest('[data-c]'),o=e.target.closest('[data-open]'),d=e.target.closest('[data-del]');
+  if(c){const h=read(),k=c.dataset.c;
+    if(k==='slack')copy(asText(h,true),'Copied for Slack');
+    if(k==='text')copy(asText(h,false),'Copied as text');
+    if(k==='link')copy(Store.link(h),'Share link copied');
+    if(k==='print')print();}
+  if(o){write(Store.all().find(x=>x.id==o.dataset.open)||{});render();$('#build').scrollIntoView()}
+  if(d){Store.del(+d.dataset.del);drawHistory()}
+});
+
+/* ---- init ---- */
+const shared=Store.fromHash();if(shared){write(shared)}
+drawHistory();render();if(shared)$('#out').scrollIntoView();
+</script>
+</body>
+</html>
